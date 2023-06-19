@@ -1,10 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View,Alert } from 'react-native';
 import Value from './src/components/Value';
 import RingProgress from './src/components/RingProgress';
 import { useState } from 'react';
 import useHealthData from './src/hooks/useHealthData';
 import { AntDesign } from '@expo/vector-icons';
+import FitnessButton from './src/components/FitnessCheck';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STEPS_GOAL = 10_000;
 
@@ -19,9 +21,22 @@ export default function App() {
 
     setDate(currentDate); // Update the state variable
   };
-
+  const handleFitnessButtonPress = async () => {
+    try {
+      const checkInDate = await AsyncStorage.getItem('checkInDate ');
+      if (checkInDate) {
+      Alert.alert('Already checked in today');
+      return;
+      }
+      await AsyncStorage.setItem('checkInDate', date.toISOString());
+      Alert.alert('Check-in successful');
+    }catch(error) {
+      Alert.alert('Error while checking in:',error);
+   };
+  };
   return (
     <View style={styles.container}>
+        <FitnessButton onPress={handleFitnessButtonPress} />
       <View style={styles.datePicker}>
         <AntDesign
           onPress={() => changeDate(-1)}
